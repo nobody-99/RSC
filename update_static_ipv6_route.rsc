@@ -1,23 +1,17 @@
-:local address_list_name "your-address-list-name-here"
-:local router_name "your-router-name-here"
+:local AddressListName "CM6_OUT_DST_LIST"
+:local GatewayName "PPPoE_CM"
 
 # Find all addresses in the address list with a comment
-:local addresses [/ipv6 firewall address-list find where list=$address_list_name && comment!=""]
+:local AddrListRecords [/ipv6 firewall address-list find where list=$AddressListName && comment!="dummy"]
 
-:foreach address in=$addresses do={
-  :local ip [/ipv6 firewall address-list get $address address]
-  :local comment [/ipv6 firewall address-list get $address comment]
-  :local router_rule [/ipv6 route find dst-address=$ip]
+:foreach Record in=$AddrListRecords do={
+  :local RecordIp [/ipv6 firewall address-list get $Record address]
+  :local RecordComment [/ipv6 firewall address-list get $Record comment]
+  :local RouterRule [/ipv6 route find dst-address=$RecordIp]
 
   # If the router rule doesn't exist, create it
-  :if ([:len $router_rule] = 0) do={
-    /ipv6 route add dst-address=$ip gateway=$router_name comment=$comment
-    :log info "Added router rule for $ip with comment $comment in address list $address_list_name"
-  }
-
-  # Update the existing router rule
-  :if ([:len $router_rule] > 0) do={
-    /ipv6 route set [find dst-address=$ip] gateway=$router_name comment=$comment
-    :log info "Updated router rule for $ip with comment $comment in address list $address_list_name"
+  :if ([:len $RouterRule] = 0) do={
+    /ipv6 route add dst-address=$RecordIp gateway=$GatewayName distance=1 routing-table=main comment=$RecordComment
+    :log info "Added router rule for $RecordIp with comment $RecordComment in address list $AddressListName"
   }
 }

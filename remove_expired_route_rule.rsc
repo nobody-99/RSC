@@ -1,7 +1,7 @@
-:local GatewayName "PPPoE_CM"
-:local Distance 1
-:local AddressListName "CM6_OUT_DST_LIST"
-:local AddressListComment "dummy"
+:local GatewayName "PPPoE_CU"
+:local Distance 2
+:local AddressListName "SecondOutDstList6"
+:local AddressListComment "SecondOutDstList6"
 
 # Step 1: Find all route rules with the specified Gateway and Distance, and get the associated IP addresses
 :local RoutesTemp [/ipv6 route find where gateway=$GatewayName && distance=$Distance]
@@ -12,7 +12,7 @@
 }
 
 # Step 2: Find all addresses in the address list with the specified name and comment
-:local AddrListsTemp [/ipv6 firewall address-list find where list=$AddressListName && comment!="$AddressListComment"]
+:local AddrListsTemp [/ipv6 firewall address-list find where list=$AddressListName && comment!=$AddressListComment]
 :local AddressesValid [:toarray "" ]
 :foreach AddrListTemp in=$AddrListsTemp do={
   :local AddressValid [/ipv6 firewall address-list get $AddrListTemp address]
